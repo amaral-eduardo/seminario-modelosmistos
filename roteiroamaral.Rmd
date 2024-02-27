@@ -1,0 +1,114 @@
+---
+title: ''
+output: html_document
+---
+## 4.7 Interpretando estimativas de parâmetros no modelo final
+
+Consideramos os resultados gerados ajuste do modelo 4.2 usando method = "REML"
+
+# 4.7.1 Estimativas de parâmetros de efeito fixo
+```{r, echo=FALSE, message=FALSE, error=FALSE}
+class<-nlmeU::SIIdata
+attach(class)
+library(nlme)
+
+# Model 4.1.
+model4.1.fit <- lme(mathgain ~ 1, random = ~ 1 | schoolid/classid,
+                    class, method = "REML") # Wilkinson–Rogers notation
+# ou
+model <- lme(mathgain ~ 1, random =list( ~ 1 | schoolid, ~ 1 | classid),
+             class, method = "REML")
+
+
+ef<- random.effects(model4.1.fit)
+
+ef2<- random.effects(model)
+
+#########################
+
+# Model 4.1A.
+model4.1A.fit <- lme(mathgain ~ 1, random = ~1 | schoolid,
+                     data = class, method = "REML")
+
+ob<- anova(model4.1.fit, model4.1A.fit)
+
+# 0.5*pchisq(ob[2,8], df = 0, lower.tail = F) + 0.5*pchisq(ob[2,8], df = 1, lower.tail = F)
+
+###########################
+
+# Model 4.2.
+model4.2.fit <- lme(mathgain ~ mathkind + sex + minority + ses,
+                    random = ~1 | schoolid/classid, class,
+                    na.action = "na.omit", method = "REML")
+# summary(model4.2.fit)$tTable
+
+
+# Model 4.1: ML estimation with lme().
+model4.1.ml.fit <- lme(mathgain ~ 1, random = ~1 | schoolid/classid,
+                       class, method = "ML")
+# Model 4.2: ML estimation with lme().
+model4.2.ml.fit <- lme(mathgain ~ mathkind + sex + minority + ses,
+                       random = ~1 | schoolid/classid, class,
+                       na.action = "na.omit", method = "ML")
+ob<- anova(model4.1.ml.fit, model4.2.ml.fit)
+
+###################
+
+# Model 4.3.
+model4.3.fit <- update(model4.2.fit, fixed =
+                         ~ mathkind + sex + minority + ses + 
+                         yearstea + mathprep + mathknow)
+
+#####################
+
+# Model 4.4.
+model4.4.fit <- update(model4.2.fit, fixed = ~ mathkind + 
+                         sex + minority+ ses + housepov)
+
+model4.4.ml.fit <- update(model4.2.fit, fixed = ~ mathkind + sex + minority+ ses +
+                            housepov, method = "ML")
+```
+
+
+
+```{r}
+ summary(model4.2.fit)$tTable
+```
+Com base nos resultados do Modelo 4.2, vemos que o ganho na pontuação em matemática na primavera da primeira série (MATHGAIN) está significativamente relacionado à:
+
+* MATHKIND = pontuação do aluno em matemática na primavera do ano do jardim de infância
+* MINORITY = variável indicadora (0 = aluno não minoritário, 1 = aluno minoritário)
+* SES = Situação socioeconômica do aluno
+
+O efeito fixo estimado de SEXO (mulheres em relação a homens: 0 = menino, 1 = menina) é o único efeito fixo não significativo no Modelo 4.2 (p = 0,45). O efeito fixo estimado da pontuação de matemática do jardim de infância, MATHKIND, na pontuação de desempenho em matemática na primeira série, MATHGAIN, é negativo (-0,47), sugerindo que os alunos com pontuações mais altas em matemática na primavera de seu ano de jardim de infância têm um ganho menor previsto em desempenho em matemática na primavera da primeira série, após o ajuste para os efeitos de outras covariáveis (ou seja, SEX, MINORITY e SES). Ou seja, os alunos que vão bem em matemática no jardim de infância não vão melhorar tanto no próximo ano quanto os alunos que vão mal no jardim de infância. Prevê-se que os alunos MINORITY têm uma pontuação média de MATHGAIN 8,25 unidades menor do que os alunos não minoritários, após o ajuste para os efeitos de outras covariáveis. Além disso, prevê-se que alunos com SES mais alto tenham maior ganho de desempenho em matemática do que alunos com SES mais baixo, controlando os efeitos das outras covariáveis no modelo.
+
+# 4.7.2 Estimativas de parâmetros de covariância
+
+```{r}
+VarCorr(model4.2.fit)
+```
+$$\upsilon_k  \overset{iid}{\sim} N(0, \sigma_{int:school}^{2}), \ \ \upsilon_{j|k} \overset{iid}{\sim} N(0, \sigma_{int:clasroom}^{2})\ \ \mathrm{e} \ \ \varepsilon_{ij} \overset{iid}{\sim} N(0, \sigma ^2)$$
+$$\widehat{\sigma}_{int:school}^2 = 75.2, \ \ \widehat{\sigma}_{int:clasroom}^2 = 83.28 \ \ e \ \ \widehat{\sigma}^2 = 734.56$$
+
+A adição das covariáveis de efeitos fixos ao nível de estudante no Modelo 4.1 (isto é Modelo 4.2) reduziu a variância residual estimada em cerca de 29\% (variância residual estimada = 1028.23 no Modelo 4.1, contra 734.56 no Modelo 4.2). As estimativas dos componentes de variância no nível da sala de aula e da escola também foram reduzidas pela adição dos efeitos fixos associados às covariáveis ao nível de aluno, embora não substancialmente (a variância estimada no nível da sala de aula foi reduzida em cerca de 17,4\%, e a estimativa da variância no nível escola foi reduzida em cerca de 2,9\%). Isso sugere que as quatro covariáveis no nível do aluno estão efetivamente explicando algumas das variações aleatórias nos valores de resposta nos diferentes níveis do conjunto de dados, especialmente no nível do aluno (como esperado). A magnitude dos componentes de variância no Modelo 4.2 (e os testes qui-quadrado significativos relatados para os componentes de variância) sugere que ainda há variação aleatória inexplicada nos valores da resposta em todos os três níveis deste conjunto de dados. Neste ponto, efeitos fixos associados a covariáveis adicionais podem ser adicionados ao modelo, para ver se eles ajudam a explicar a variação aleatória nos diferentes níveis dos dados
+
+## 4.8 Estimando os Coeficientes de Correlação Intraclasse (ICCs)
+
+No contexto de um modelo hierárquico de três níveis com intercepto aleatório, o coeficiente de correlação intraclasse (ICC) é uma medida que descreve a similaridade (ou homogeneidade) das respostas observadas dentro de um determinado cluster. Para cada nível de agrupamento (por exemplo, sala de aula ou escola), um ICC pode ser definido como uma função dos componentes de variação. Para abreviar nesta seção, representamos a variância dos efeitos aleatórios associados às escolas como $\sigma_s^2$ (em vez de $\sigma_{int:school}^2$), e a variância dos efeitos aleatórios associados às salas de aula aninhadas nas escolas como $\sigma_c^2$ (em vez de $\sigma_{int:classroom}^2$). O ICC em nível de escola é definido como a proporção da variação aleatória total nas respostas observadas (o denominador em (2)) devido à variância dos efeitos escolares aleatórios (o numerador em (2)):
+$$ICC_{school} = \frac{\sigma_{s}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}}$$
+O valor do $ICC_{school}$ é alto se a variação aleatória total for dominada pela variância dos efeitos aleatórios da escola. Em outras palavras, a $ICC_{school}$ é alta se as pontuações MATHGAIN dos alunos na mesma escola são relativamente homogêneas, mas as pontuações MATHGAIN entre as escolas tendem a variar amplamente.
+
+Da mesma forma, o ICC em nível de sala de aula é definido como a proporção da variação aleatória total (o denominador em (3)) devido à variação aleatória entre escolas e entre salas de aula (o numerador em (3)):
+
+$$ICC_{classroom} = \frac{\sigma_{s}^{2} + \sigma_{c}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}}$$
+
+Este ICC é alto se houver pouca variação nas respostas dos alunos na mesma sala de aula ($\sigma^2$ é baixo) em comparação com a variação aleatória total.
+
+ O ICC pode ser calculado a partir de um modelo sem efeitos fixos de outras covariáveis (por exemplo, Modelo 4.1) ou para um modelo incluindo esses efeitos fixos (por exemplo, Modelos 4.2 ou 4.3). Em ambos os casos, podemos obter os ICCs das estimativas dos componentes de variância rotulados ou da matriz de correlação marginal estimada, conforme descrito anteriormente.
+
+```{r}
+VarCorr(model4.1.fit)
+```
+
+$$ICC_{school} = \frac{77.49202}{77.49202+99.22751+1028.23396}=0.0643$$
+$$ICC_{classroom} = \frac{ 77.49202+99.22751}{ 77.49202+99.22751+1028.23396}=0.1467$$

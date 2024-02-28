@@ -12,7 +12,6 @@ model4.1.fit <- lme(mathgain ~ 1, random = ~ 1 | schoolid/classid,
 model <- lme(mathgain ~ 1, random =list( ~ 1 | schoolid, ~ 1 | classid),
              class, method = "REML")
 
-
 VarCorr(model4.1.fit)
 VarCorr(model)
 

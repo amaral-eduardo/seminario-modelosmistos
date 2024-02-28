@@ -1,6 +1,6 @@
 ---
 title: ''
-output: html_document
+output: pdf_document
 ---
 ## 4.7 Interpretando estimativas de parâmetros no modelo final
 
@@ -112,3 +112,98 @@ VarCorr(model4.1.fit)
 
 $$ICC_{school} = \frac{77.49202}{77.49202+99.22751+1028.23396}=0.0643$$
 $$ICC_{classroom} = \frac{ 77.49202+99.22751}{ 77.49202+99.22751+1028.23396}=0.1467$$
+
+As observações sobre os alunos na mesma escola são modestamente correlacionadas, enquanto as observações sobre os alunos na mesma sala de aula têm uma correlação um pouco mais alta.
+
+```{r}
+VarCorr(model4.2.fit)
+```
+
+$$ICC_{school} = \frac{75.20343}{75.20343+83.28461+734.56509}=0.0842$$
+
+$$ICC_{classroom} = \frac{75.20343+83.28461}{75.20343+83.28461+734.56509}=0.1775$$
+
+As observações sobre os alunos na mesma escola são modestamente correlacionadas, enquanto as observações sobre os alunos na mesma sala de aula têm uma correlação um pouco mais alta.
+
+
+Para ilustrar ainda mais os cálculos do ICC, consideramos a matriz marginal de variância-covariância $V_k$ implícita no Modelo 4.1 para uma escola hipotética, k, com duas salas de aula, com a primeira sala com dois alunos e a segunda com três alunos. Primeiro, vamos escrever o modelo incondicional, Modelo 4.1, na forma matricial.
+$$V_k=Var(MATHGAIN)_k=Z_kD_kZT_k+R_k$$
+$$V_k = 
+\begin{pmatrix}
+\sigma_s^2 + \sigma_c^2 + \sigma^2 &\sigma_s^2 + \sigma_c^2  &\sigma_s^2  &\sigma_s^2  &\sigma_s^2 \\ 
+\sigma_s^2 + \sigma_c^2 &\sigma_s^2 + \sigma_c^2 + \sigma^2  &\sigma_s^2  &\sigma_s^2  &\sigma_s^2 \\ 
+\sigma_s^2 &\sigma_s^2  &\sigma_s^2 + \sigma_c^2 + \sigma^2  &\sigma_s^2 + \sigma_c^2  &\sigma_s^2 + \sigma_c^2 \\ 
+\sigma_s^2 &\sigma_s^2  &\sigma_s^2 + \sigma_c^2 &\sigma_s^2 + \sigma_c^2 + \sigma^2  &\sigma_s^2 + \sigma_c^2 \\ 
+\sigma_s^2 &\sigma_s^2  &\sigma_s^2 + \sigma_c^2 &\sigma_s^2 + \sigma_c^2  &\sigma_s^2 + \sigma_c^2 + \sigma^2 
+\end{pmatrix}$$
+
+As primeiras duas linhas e colunas desta matriz correspondem às observações sobre os dois alunos da primeira sala de aula, e as últimas três linhas e colunas correspondem às observações sobre os três alunos da segunda classe.
+
+A matriz de correlação marginal correspondente para essas observações pode ser calculada dividindo todos os elementos na matriz Vk pela variância total de uma dada observação, $[Var(y_{ijk}) = \sigma_s^2 + \sigma_c^2 + \sigma^2]$ conforme mostrado abaixo, os ICCs definidos em (2) e (3) podem ser facilmente identificados nesta matriz de correlação implícita:
+
+$$V_k(corr) = \begin{pmatrix}
+1 &\frac{\sigma_{s}^{2} + \sigma_{c}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}}  &\frac{\sigma_{s}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}}  &\frac{\sigma_{s}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}}  &\frac{\sigma_{s}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}} \\ 
+\frac{\sigma_{s}^{2} + \sigma_{c}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}} &1  &\frac{\sigma_{s}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}}  &\frac{\sigma_{s}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}}  &\frac{\sigma_{s}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}} \\ 
+\frac{\sigma_{s}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}} &\frac{\sigma_{s}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}}  &1  &\frac{\sigma_{s}^{2} + \sigma_{c}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}}  &\frac{\sigma_{s}^{2} + \sigma_{c}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}} \\ 
+\frac{\sigma_{s}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}} &\frac{\sigma_{s}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}}  &\frac{\sigma_{s}^{2} + \sigma_{c}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}}  &1  &\frac{\sigma_{s}^{2} + \sigma_{c}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}} \\ 
+\frac{\sigma_{s}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}} &\frac{\sigma_{s}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}}  &\frac{\sigma_{s}^{2} + \sigma_{c}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}}  &\frac{\sigma_{s}^{2} + \sigma_{c}^{2}}{\sigma_{s}^{2} + \sigma_{c}^{2} + \sigma^{2}}  &1 
+\end{pmatrix}$$
+
+```{r}
+ options(width = 90)
+ library(mgcv)
+
+ Vs<- extract.lme.cov2(model4.1.fit,data=class, start.level=1)
+ round(Vs$V[[1]],1)
+```
+
+As matrizes marginais de variância-covariância para observações sobre alunos em qualquer escola teriam a mesma estrutura, mas seriam de dimensões diferentes, dependendo do número de alunos dentro da escola. As observações sobre os alunos em escolas diferentes terão covariância zero, porque são consideradas independentes umas das outras.
+
+Observe na saída da função cov2cor(), a seguir, que as observações sobre diferentes alunos na mesma sala de aula nesta escola têm uma correlação marginal estimada de 0,1467, e as observações sobre os alunos em diferentes salas de aula nesta escola têm uma correlação estimada de 0,0643. Esses resultados correspondem aos cálculos ICC iniciais com base nos componentes de variância estimados.
+
+```{r}
+round(cov2cor(Vs$V[[1]]),4)
+```
+
+As covariáveis não são consideradas nas definições clássicas do ICC, seja com base no modelo de intercepto aleatório ou no modelo marginal; no entanto, as covariáveis podem ser facilmente acomodadas na estrutura do modelo misto em qualquer configuração de modelo. O ICC pode ser calculado a partir de um modelo sem efeitos fixos de outras covariáveis (por exemplo, Modelo 4.1) ou para um modelo incluindo esses efeitos fixos (por exemplo, Modelos 4.2 ou 4.3). Em ambos os casos, podemos obter os ICCs das estimativas dos componentes de variância rotulados ou da matriz de correlação marginal estimada, conforme descrito anteriormente.
+
+##  4.9 Cálculo de valores preditos
+Considerando as estimativas para os efeitos fixos no Modelo 4.2, podemos escrever uma fórmula para os valores predistos condicionais de MATHGAIN para um aluno em uma determinada sala de aula:
+```{r}
+ob <- summary(model4.2.fit)$tTable; ob
+```
+
+Com o modelo ajustado podemos gerar três conjuntos diferentes de valores preditos: valores preditos condicionais, incluindo os EBLUPs dos efeitos aleatórios da escola e da sala de aula, e valores preditos marginais baseados apenas nos efeitos fixos estimados. Por exemplo:
+
+* Incluindo os EBLUPs do efeito aleatório para a escola deste aluno, $u_k$, e o efeito sala de aula aleatório para este aluno, $u_{j|k}$.
+
+$$\widehat{MATHGAIN_{ijk}} = 282.7903 - 0.4698 \times MATHKIND_{ijk} - 1.2512 \times SEX_{ijk} - 8.2621 \times MINORITY_{ijk} + 5.3464 \times SES_{ijk} + \widehat{u}_k + \widehat{u}_{j|k}$$
+
+Os resíduos calculados com base nesses valores preditos condicionais devem ser usados para avaliar as suposições de normalidade e variância constante para os resíduos.
+
+* incluindo apenas os EBLUPs do efeito efeito sala de aula aleatório para este aluno, $u_{j|k}$.
+
+$$\widehat{MATHGAIN_{ijk}} = 282.7903 - 0.4698 \times MATHKIND_{ijk} - 1.2512 \times SEX_{ijk} - 8.2621 \times MINORITY_{ijk} + 5.3464 \times SES_{ijk} + \widehat{u}_k$$
+
+* baseado na distribuição marginal de MATHGAIN, para gerar valores preditos marginais
+
+$$\widehat{MATHGAIN_{ijk}} = 282.7903 - 0.4698 \times MATHKIND_{ijk} - 1.2512 \times SEX_{ijk} - 8.2621 \times MINORITY_{ijk} + 5.3464 \times SES_{ijk}$$
+
+```{r}
+# Efeitos
+ef <- ranef(model4.2.fit)
+ef1 <- ef[[1]][,1];ef2<-ef[[2]][,1]
+
+options(width=90)
+pred <- predict(model4.2.fit,level=0:2)
+head(pred)
+
+dadospred <- cbind(class[schoolid=="1",c("classid","mathkind","sex",
+                                         "minority","ses","mathgain")],
+                   round(pred[schoolid=="1",3:5],2))
+                               
+```
+
+Considerando o primeiro aluno da escola 1 e predizendo utilizando de valores preditos condicionais.
+
+$$\widehat{MATHGAIN_{ijk}} = 282.7903 - 0.4698 \times 448 - 1.2512 \times 1 - 8.2621 1 + 5.3464 \times 0.46 + 0.4981 + 3.4025 = 69.166544$$

@@ -1,6 +1,5 @@
 # rm(list=ls())
 # cat('\14')
-
 class<-WWGbook::classroom
 attach(class)
 library(nlme)
@@ -82,3 +81,35 @@ model4.4.ml.fit <- update(model4.2.fit, fixed = ~ mathkind + sex + minority+ ses
                             housepov, method = "ML")
 summary(model4.4.fit)$tTable
 anova(model4.2.ml.fit, model4.4.ml.fit )
+
+######################
+
+knitr::kable(summary(model4.2.fit)$tTable, align = 'c')
+
+knitr::kable(VarCorr(model4.2.fit), align = 'c')
+
+knitr::kable(VarCorr(model4.1.fit), align = 'c')
+
+knitr::kable(VarCorr(model4.2.fit), align = 'c')
+
+
+options(width = 90)
+library(mgcv)
+Vs<- extract.lme.cov2(model4.1.fit,data=class, start.level=1)
+knitr::kable(round(Vs$V[[1]],1), align = 'c')
+
+knitr::kable(round(cov2cor(Vs$V[[1]]),4), align = 'c')
+knitr::kable(summary(model4.2.fit)$tTable, align = 'c')
+
+ef <- ranef(model4.2.fit)
+ef1 <- ef[[1]][,1];ef2<-ef[[2]][,1]
+
+options(width=90)
+pred <- predict(model4.2.fit,level=0:2)
+knitr::kable(head(pred), align = 'c')
+
+dadospred <- cbind(class[schoolid=="1",c("classid","mathkind","sex",
+                                         "minority","ses","mathgain")],
+                   round(pred[schoolid=="1",3:5],2))
+
+knitr::kable(dadospred[1,-1], align = 'c')

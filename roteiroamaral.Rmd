@@ -72,7 +72,7 @@ model4.4.ml.fit <- update(model4.2.fit, fixed = ~ mathkind + sex + minority+ ses
 
 
 ```{r}
- summary(model4.2.fit)$tTable
+knitr::kable(summary(model4.2.fit)$tTable, align = 'c')
 ```
 Com base nos resultados do Modelo 4.2, vemos que o ganho na pontuação em matemática na primavera da primeira série (MATHGAIN) está significativamente relacionado à:
 
@@ -85,7 +85,7 @@ O efeito fixo estimado de SEXO (mulheres em relação a homens: 0 = menino, 1 = 
 # 4.7.2 Estimativas de parâmetros de covariância
 
 ```{r}
-VarCorr(model4.2.fit)
+knitr::kable(VarCorr(model4.2.fit), align = 'c')
 ```
 $$\upsilon_k  \overset{iid}{\sim} N(0, \sigma_{int:school}^{2}), \ \ \upsilon_{j|k} \overset{iid}{\sim} N(0, \sigma_{int:clasroom}^{2})\ \ \mathrm{e} \ \ \varepsilon_{ij} \overset{iid}{\sim} N(0, \sigma ^2)$$
 $$\widehat{\sigma}_{int:school}^2 = 75.2, \ \ \widehat{\sigma}_{int:clasroom}^2 = 83.28 \ \ e \ \ \widehat{\sigma}^2 = 734.56$$
@@ -107,7 +107,7 @@ Este ICC é alto se houver pouca variação nas respostas dos alunos na mesma sa
  O ICC pode ser calculado a partir de um modelo sem efeitos fixos de outras covariáveis (por exemplo, Modelo 4.1) ou para um modelo incluindo esses efeitos fixos (por exemplo, Modelos 4.2 ou 4.3). Em ambos os casos, podemos obter os ICCs das estimativas dos componentes de variância rotulados ou da matriz de correlação marginal estimada, conforme descrito anteriormente.
 
 ```{r}
-VarCorr(model4.1.fit)
+knitr::kable(VarCorr(model4.1.fit), align = 'c')
 ```
 
 $$ICC_{school} = \frac{77.49202}{77.49202+99.22751+1028.23396}=0.0643$$
@@ -116,7 +116,7 @@ $$ICC_{classroom} = \frac{ 77.49202+99.22751}{ 77.49202+99.22751+1028.23396}=0.1
 As observações sobre os alunos na mesma escola são modestamente correlacionadas, enquanto as observações sobre os alunos na mesma sala de aula têm uma correlação um pouco mais alta.
 
 ```{r}
-VarCorr(model4.2.fit)
+knitr::kable(VarCorr(model4.2.fit), align = 'c')
 ```
 
 $$ICC_{school} = \frac{75.20343}{75.20343+83.28461+734.56509}=0.0842$$
@@ -154,7 +154,7 @@ $$V_k(corr) = \begin{pmatrix}
  library(mgcv)
 
  Vs<- extract.lme.cov2(model4.1.fit,data=class, start.level=1)
- round(Vs$V[[1]],1)
+ knitr::kable(round(Vs$V[[1]],1), align = 'c')
 ```
 
 As matrizes marginais de variância-covariância para observações sobre alunos em qualquer escola teriam a mesma estrutura, mas seriam de dimensões diferentes, dependendo do número de alunos dentro da escola. As observações sobre os alunos em escolas diferentes terão covariância zero, porque são consideradas independentes umas das outras.
@@ -162,7 +162,7 @@ As matrizes marginais de variância-covariância para observações sobre alunos
 Observe na saída da função cov2cor(), a seguir, que as observações sobre diferentes alunos na mesma sala de aula nesta escola têm uma correlação marginal estimada de 0,1467, e as observações sobre os alunos em diferentes salas de aula nesta escola têm uma correlação estimada de 0,0643. Esses resultados correspondem aos cálculos ICC iniciais com base nos componentes de variância estimados.
 
 ```{r}
-round(cov2cor(Vs$V[[1]]),4)
+knitr::kable(round(cov2cor(Vs$V[[1]]),4), align = 'c')
 ```
 
 As covariáveis não são consideradas nas definições clássicas do ICC, seja com base no modelo de intercepto aleatório ou no modelo marginal; no entanto, as covariáveis podem ser facilmente acomodadas na estrutura do modelo misto em qualquer configuração de modelo. O ICC pode ser calculado a partir de um modelo sem efeitos fixos de outras covariáveis (por exemplo, Modelo 4.1) ou para um modelo incluindo esses efeitos fixos (por exemplo, Modelos 4.2 ou 4.3). Em ambos os casos, podemos obter os ICCs das estimativas dos componentes de variância rotulados ou da matriz de correlação marginal estimada, conforme descrito anteriormente.
@@ -170,20 +170,20 @@ As covariáveis não são consideradas nas definições clássicas do ICC, seja 
 ##  4.9 Cálculo de valores preditos
 Considerando as estimativas para os efeitos fixos no Modelo 4.2, podemos escrever uma fórmula para os valores predistos condicionais de MATHGAIN para um aluno em uma determinada sala de aula:
 ```{r}
-ob <- summary(model4.2.fit)$tTable; ob
+knitr::kable(summary(model4.2.fit)$tTable, align = 'c')
 ```
 
 Com o modelo ajustado podemos gerar três conjuntos diferentes de valores preditos: valores preditos condicionais, incluindo os EBLUPs dos efeitos aleatórios da escola e da sala de aula, e valores preditos marginais baseados apenas nos efeitos fixos estimados. Por exemplo:
 
 * Incluindo os EBLUPs do efeito aleatório para a escola deste aluno, $u_k$, e o efeito sala de aula aleatório para este aluno, $u_{j|k}$.
 
-$$\widehat{MATHGAIN_{ijk}} = 282.7903 - 0.4698 \times MATHKIND_{ijk} - 1.2512 \times SEX_{ijk} - 8.2621 \times MINORITY_{ijk} + 5.3464 \times SES_{ijk} + \widehat{u}_k + \widehat{u}_{j|k}$$
+$$\widehat{MATHGAIN_{ijk}} = 282.7903 - 0.4698 \times MATHKIND_{ijk} - 1.2512 \times SEX_{ijk}$$ $$- 8.2621 \times MINORITY_{ijk} + 5.3464 \times SES_{ijk} + \widehat{u}_k + \widehat{u}_{j|k}$$
 
 Os resíduos calculados com base nesses valores preditos condicionais devem ser usados para avaliar as suposições de normalidade e variância constante para os resíduos.
 
 * incluindo apenas os EBLUPs do efeito efeito sala de aula aleatório para este aluno, $u_{j|k}$.
 
-$$\widehat{MATHGAIN_{ijk}} = 282.7903 - 0.4698 \times MATHKIND_{ijk} - 1.2512 \times SEX_{ijk} - 8.2621 \times MINORITY_{ijk} + 5.3464 \times SES_{ijk} + \widehat{u}_k$$
+$$\widehat{MATHGAIN_{ijk}} = 282.7903 - 0.4698 \times MATHKIND_{ijk} - 1.2512 \times SEX_{ijk}$$ $$- 8.2621 \times MINORITY_{ijk} + 5.3464 \times SES_{ijk} + \widehat{u}_k$$
 
 * baseado na distribuição marginal de MATHGAIN, para gerar valores preditos marginais
 
@@ -196,14 +196,21 @@ ef1 <- ef[[1]][,1];ef2<-ef[[2]][,1]
 
 options(width=90)
 pred <- predict(model4.2.fit,level=0:2)
-head(pred)
+knitr::kable(head(pred), align = 'c')
+```
 
+```{r, echo=FALSE}
 dadospred <- cbind(class[schoolid=="1",c("classid","mathkind","sex",
                                          "minority","ses","mathgain")],
                    round(pred[schoolid=="1",3:5],2))
-                               
 ```
 
+
 Considerando o primeiro aluno da escola 1 e predizendo utilizando de valores preditos condicionais.
+
+```{r}
+knitr::kable(dadospred[1,-1], align = 'c')
+```
+
 
 $$\widehat{MATHGAIN_{ijk}} = 282.7903 - 0.4698 \times 448 - 1.2512 \times 1 - 8.2621 1 + 5.3464 \times 0.46 + 0.4981 + 3.4025 = 69.166544$$
